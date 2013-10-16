@@ -1,6 +1,6 @@
 # space-ventures
 
-A LibGDX game in which ... well, that part is up to you.
+Simple space themed 2D game frame with Clojure and libgdx.
 
 ## Contents
 
