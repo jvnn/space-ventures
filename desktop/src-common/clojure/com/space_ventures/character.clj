@@ -44,10 +44,13 @@
                  (character :direction))
         deg2rad (/ 3.14159 180)
         ; the -/+ and sin/cos below were just decided with trial&error...
-        newx (- (character :x) (* (math/sin (* direction deg2rad)) (* speed delta-time)))
-        newy (+ (character :y) (* (math/cos (* direction deg2rad)) (* speed delta-time)))
+        distance (* speed delta-time)
+        newx (- (character :x) (* (math/sin (* direction deg2rad))
+                                  distance))
+        newy (+ (character :y) (* (math/cos (* direction deg2rad))
+                                  distance))
         new-walk-dist (if (>= speed 0)
-                        (+ (* speed delta-time) (character :walk-state-dist))
+                        (+ distance (character :walk-state-dist))
                         0)
         new-walk-state (if (> new-walk-dist CHANGE-WALK-MODE-DIST)
                          (+ (mod (character :walk-state) 2) 1)
@@ -81,5 +84,7 @@
       texture-width texture-height false false)))
 
 
-
+(defn dispose [character]
+  (doseq [texture (vals (character :texture))]
+    (.dispose texture)))
 

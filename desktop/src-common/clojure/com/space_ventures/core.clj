@@ -67,7 +67,7 @@
       ;  (set! (. bucket x) (- 640 64)))
       
       (.update ortocamera)
-      (tilemap/render-map (world :tilemap) ortocamera)
+      (tilemap/render (world :tilemap) ortocamera)
       
       (let [direction (cond
                         (.isKeyPressed Gdx/input Input$Keys/UP) 0
@@ -91,8 +91,8 @@
       (.end batch))
     
     (dispose[]
-      ;(.dispose droplet-img)
-      ;(.dispose bucket-img)
+      (tilemap/dispose (world :tilemap))
+      (character/dispose (world :character))
       (.dispose batch))
     (hide [])
     (pause [])
@@ -113,6 +113,6 @@
   (.setToOrtho ortocamera false 640 640)
   (def batch (SpriteBatch.))
   (def world (hash-map
-               :tilemap (tilemap/load-map (str asset-path "simple_walled_map.tmx"))
+               :tilemap (tilemap/create (str asset-path "simple_walled_map.tmx"))
                :character (character/create 320 320 64 64 (str asset-path "character")))))
 
