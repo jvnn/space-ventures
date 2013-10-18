@@ -18,12 +18,35 @@
 
 (ns com.space-ventures.map
   (:import [com.badlogic.gdx.maps.tiled TiledMap TmxMapLoader]
-           [com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer]))
+           [com.badlogic.gdx.maps.tiled.renderers OrthogonalTiledMapRenderer]
+           [com.badlogic.gdx.maps.objects RectangleMapObject]))
 
-(defn create [map-name]
+
+; get the obstacle layer from the map and extract all rectangle objects
+(defn extract-obstacles [tilemap scale]
+  (let [objects (.getObjects (.get (.getLayers tilemap) "obstacles"))
+        rectangles (seq (.getByType objects RectangleMapObject))]
+    (for [rect-obj rectangles]
+      (let [rectangle (.getRectangle rect-obj)
+            x-scaled (* (. rectangle x) scale)
+            y-scaled (* (. rectangle y) scale)
+            width-scaled (* (. rectangle width) scale)
+            height-scaled (* (. rectangle height) scale)]
+        (set! (. rectangle x) x-scaled)
+        (set! (. rectangle y) y-scaled)
+        (set! (. rectangle width) width-scaled)
+        (set! (. rectangle height) height-scaled)
+        rectangle))))
+
+(defn create [map-name scale]
   (let [tilemap (.load (TmxMapLoader.) map-name)]
     (hash-map :tilemap tilemap
-              :renderer (OrthogonalTiledMapRenderer. tilemap))))
+              :renderer (OrthogonalTiledMapRenderer. tilemap (float scale))
+              :obstacles (extract-obstacles tilemap scale)
+              :scale scale)))
+
+(defn obstacles [mapmap]
+  (mapmap :obstacles))
 
 (defn render [mapmap camera]
   (.setView (mapmap :renderer) camera)

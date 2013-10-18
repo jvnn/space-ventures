@@ -33,6 +33,7 @@
 ; current position, a target and the obstacle map
 
 (def asset-path "../android/assets/")
+(def SCALE (/ 1 32.0))
 
 (def ortocamera nil)
 (def batch nil)
@@ -44,27 +45,6 @@
     (render [delta]
       (.glClearColor (Gdx/gl) 0 0 0.2 1)
       (.glClear (Gdx/gl) GL10/GL_COLOR_BUFFER_BIT)
-        
-      
-      ;(if (.isKeyPressed Gdx/input Input$Keys/LEFT)
-        ;(set! (. bucket x)
-        ;      (- (. bucket x)(* 200 (.getDeltaTime Gdx/graphics)))))
-      ;(if (.isKeyPressed Gdx/input Input$Keys/RIGHT)
-        ;(set! (. bucket x)
-        ;      (+ (. bucket x) (* 200 (.getDeltaTime Gdx/graphics)))))  
-      
-      ;(if (.isTouched Gdx/input)
-        ;(let [touch-pos (Vector3.)]
-          ; convert the touch coordinates (from input) into the
-          ; coordinate system of the camera
-          ;(.set touch-pos (.getX Gdx/input) (.getY Gdx/input) 0)
-          ;(.unproject ortocamera touch-pos)
-          ;(set! (. bucket x) (- (. touch-pos x) (/ 64 2)))))
-      
-      ;(if (< (. bucket x) 0)
-      ;  (set! (. bucket x) 0))
-      ;(if (> (. bucket x) (- 640 64))
-      ;  (set! (. bucket x) (- 640 64)))
       
       (.update ortocamera)
       (tilemap/render (world :tilemap) ortocamera)
@@ -76,14 +56,16 @@
                         (.isKeyPressed Gdx/input Input$Keys/LEFT) 90
                         :else -1)
             speed (cond
-                    (.isKeyPressed Gdx/input Input$Keys/UP) 200
-                    (.isKeyPressed Gdx/input Input$Keys/RIGHT) 200
-                    (.isKeyPressed Gdx/input Input$Keys/DOWN) 200
-                    (.isKeyPressed Gdx/input Input$Keys/LEFT) 200
+                    (.isKeyPressed Gdx/input Input$Keys/UP) 7
+                    (.isKeyPressed Gdx/input Input$Keys/RIGHT) 7
+                    (.isKeyPressed Gdx/input Input$Keys/DOWN) 7
+                    (.isKeyPressed Gdx/input Input$Keys/LEFT) 7
                     :else 0)]
         (def world (assoc world :character
                           (character/move
-                            (world :character) direction speed (.getDeltaTime Gdx/graphics)))))
+                            (world :character) direction speed
+                            (.getDeltaTime Gdx/graphics)
+                            (tilemap/obstacles (world :tilemap))))))
       
       (.setProjectionMatrix batch (. ortocamera combined))
       (.begin batch)
@@ -110,9 +92,9 @@
 (defn -create [this]
   (.setScreen this main-screen)
   (def ortocamera (OrthographicCamera.))
-  (.setToOrtho ortocamera false 640 640)
+  (.setToOrtho ortocamera false 20 20)
   (def batch (SpriteBatch.))
   (def world (hash-map
-               :tilemap (tilemap/create (str asset-path "simple_walled_map.tmx"))
-               :character (character/create 320 320 64 64 (str asset-path "character")))))
+               :tilemap (tilemap/create (str asset-path "simple_room.tmx") SCALE)
+               :character (character/create 10 10 2 2 (str asset-path "character") SCALE))))
 
