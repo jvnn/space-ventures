@@ -113,6 +113,6 @@
   (.setToOrtho ortocamera false 640 640)
   (def batch (SpriteBatch.))
   (def world (hash-map
-               :tilemap (tilemap/load-map "/home/jivi/graphics/space_ventures/testing/simple_walled_map.tmx")
+               :tilemap (tilemap/load-map (str asset-path "simple_walled_map.tmx"))
                :character (character/create 320 320 64 64 (str asset-path "character")))))
 
