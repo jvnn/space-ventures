@@ -19,25 +19,23 @@
 (ns com.space-ventures.core
   (:require [com.space-ventures.map :as tilemap]
             [com.space-ventures.character :as character])
-  (:import [com.badlogic.gdx Game Gdx Graphics Screen Input$Keys]
+  (:import [com.badlogic.gdx Game Gdx Graphics Screen]
            [com.badlogic.gdx.graphics GL10 Color OrthographicCamera]
            [com.badlogic.gdx.graphics.g2d SpriteBatch]
            [com.badlogic.gdx.utils TimeUtils]))
 
 
 ; TODO:
-; 1) make a new file for the main character. Create functions to move him
-; and make sure the functions change the sprite accordingly.
-; 2) Extend the map to somehow contain obstacle information (in another layer?)
-; 3) Create another file doing path finding for the main character using the
+; 1) Create another file doing path finding for the main character using the
 ; current position, a target and the obstacle map
+; 2) enable moving the character with the mouse using the path-finding
 
 (def asset-path "../android/assets/")
 (def SCALE (/ 1 32.0))
 
-(def ortocamera nil)
-(def batch nil)
-(def world nil)
+(declare ortocamera)
+(declare batch)
+(declare world)
 
 (def main-screen
   (proxy [Screen] []
@@ -49,23 +47,12 @@
       (.update ortocamera)
       (tilemap/render (world :tilemap) ortocamera)
       
-      (let [direction (cond
-                        (.isKeyPressed Gdx/input Input$Keys/UP) 0
-                        (.isKeyPressed Gdx/input Input$Keys/RIGHT) 270
-                        (.isKeyPressed Gdx/input Input$Keys/DOWN) 180
-                        (.isKeyPressed Gdx/input Input$Keys/LEFT) 90
-                        :else -1)
-            speed (cond
-                    (.isKeyPressed Gdx/input Input$Keys/UP) 7
-                    (.isKeyPressed Gdx/input Input$Keys/RIGHT) 7
-                    (.isKeyPressed Gdx/input Input$Keys/DOWN) 7
-                    (.isKeyPressed Gdx/input Input$Keys/LEFT) 7
-                    :else 0)]
-        (def world (assoc world :character
-                          (character/move
-                            (world :character) direction speed
-                            (.getDeltaTime Gdx/graphics)
-                            (tilemap/obstacles (world :tilemap))))))
+      (def world (assoc world :character
+                        (character/move
+                          (world :character)
+                          (.getDeltaTime Gdx/graphics)
+                          (tilemap/obstacles (world :tilemap))
+                          ortocamera)))
       
       (.setProjectionMatrix batch (. ortocamera combined))
       (.begin batch)

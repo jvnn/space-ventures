@@ -38,8 +38,17 @@
         (set! (. rectangle height) height-scaled)
         rectangle))))
 
+
+(defn extract-floorgraph [tilemap]
+  (let [nonpassable (.get (.getLayers tilemap) "obstacle_tiles")]
+    (doseq [x (range 0 (.getWidth nonpassable))
+          y (range 0 (.getHeight nonpassable))]
+      (nil? (.getCell nonpassable x y)))))
+
+
 (defn create [map-name scale]
   (let [tilemap (.load (TmxMapLoader.) map-name)]
+    (println (extract-floorgraph tilemap))
     (hash-map :tilemap tilemap
               :renderer (OrthogonalTiledMapRenderer. tilemap (float scale))
               :obstacles (extract-obstacles tilemap scale)
