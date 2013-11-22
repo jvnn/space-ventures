@@ -23,7 +23,7 @@
 
 
 ; get the obstacle layer from the map and extract all rectangle objects
-(defn extract-obstacles [tilemap scale]
+(defn- extract-obstacles [tilemap scale]
   (let [objects (.getObjects (.get (.getLayers tilemap) "obstacles"))
         rectangles (seq (.getByType objects RectangleMapObject))]
     (for [rect-obj rectangles]
@@ -39,7 +39,7 @@
         rectangle))))
 
 
-(defn extract-floorgraph [tilemap]
+(defn- extract-floorgraph [tilemap]
   (let [nonpassable (.get (.getLayers tilemap) "obstacle_tiles")]
     (doseq [x (range 0 (.getWidth nonpassable))
           y (range 0 (.getHeight nonpassable))]

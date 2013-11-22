@@ -39,14 +39,14 @@
             :movement (hash-map :target-x -1 :target-y -1 :direction 0 :speed 0)
             :scale scale))
 
-(defn r2d [rad]
+(defn- r2d [rad]
   (* rad (/ 180 PI)))
 
-(defn d2r [deg]
+(defn- d2r [deg]
   (* deg (/ PI 180)))
 
 
-(defn get-movement-from-touch [character touch-pos x y]
+(defn- get-movement-from-touch [character touch-pos x y]
   (assoc
     character :movement
     (assoc
@@ -82,14 +82,14 @@
             (+ 270 deg))))
       :speed 7)))
 
-(defn target-matches-location? [tx ty x y]
+(defn- target-matches-location? [tx ty x y]
   (and (= (int tx) (int x)) (= (int ty) (int y))))
 
 
 
 
 
-(defn get-movement [character camera]
+(defn- get-movement [character camera]
   (let [touch-pos (Vector3.)
           x (character :x)
           y (character :y)]
@@ -121,7 +121,9 @@
             (assoc
               movement
               :direction dir
-              :speed 7))
+              :speed 7
+              :target-x -1
+              :target-y -1))
           ; no keys pressed, no mouse input, check if we need to clear speed
           (if (and (>= speed 0)
                    (or (< target-x 0)
