@@ -50,8 +50,8 @@
       (def world (assoc world :character
                         (character/move
                           (world :character)
+                          (world :tilemap)
                           (.getDeltaTime Gdx/graphics)
-                          (tilemap/obstacles (world :tilemap))
                           ortocamera)))
       
       (.setProjectionMatrix batch (. ortocamera combined))

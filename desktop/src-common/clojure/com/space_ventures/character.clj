@@ -16,7 +16,8 @@
 
 
 (ns com.space-ventures.character
-  (:require [clojure.algo.generic.math-functions :as math])
+  (:require [clojure.algo.generic.math-functions :as math]
+            [com.space-ventures.map :as tilemap])
   (:import [com.badlogic.gdx Gdx Input$Keys]
            [com.badlogic.gdx.graphics Texture]
            [com.badlogic.gdx.graphics.g2d SpriteBatch]
@@ -46,7 +47,8 @@
   (* deg (/ PI 180)))
 
 
-(defn- get-movement-from-touch [character touch-pos x y]
+(defn- get-movement-from-touch [character mapmap touch-pos x y]
+  (println (tilemap/get-path mapmap character (int x) (int y) (int (. touch-pos x)) (int (. touch-pos y))))
   (assoc
     character :movement
     (assoc
@@ -89,7 +91,7 @@
 
 
 
-(defn- get-movement [character camera]
+(defn- get-movement [character mapmap camera]
   (let [touch-pos (Vector3.)
           x (character :x)
           y (character :y)]
@@ -99,7 +101,7 @@
         ; coordinate system of the camera
         (.set touch-pos (.getX Gdx/input) (.getY Gdx/input) 0)
         (.unproject camera touch-pos)
-        (get-movement-from-touch character touch-pos x y))
+        (get-movement-from-touch character mapmap touch-pos x y))
     
       ; else (no touch):
       (let
@@ -141,13 +143,14 @@
 ; walk-state means which texture (1 or 2) to use.
 ; walk-state-dist keeps track of how far the character has walked to and when
 ; a limit is exceeded, the other texture will be used.
-(defn move [character-arg delta-time obstacles camera]
-  (let [character (get-movement character-arg camera)
+(defn move [character-arg mapmap delta-time camera]
+  (let [character (get-movement character-arg mapmap camera)
         movement (character :movement)
         target-x (movement :target-x)
         target-y (movement :target-y)
         direction (movement :direction)
         speed (movement :speed)
+        obstacles (tilemap/get-obstacles mapmap)
         distance (* speed delta-time)
         dx (* (math/sin (d2r direction)) (- 0 distance))
         dy (* (math/cos (d2r direction)) distance)
@@ -163,8 +166,8 @@
         scale (character :scale)]
     
     ; update the character area to test for collisions
-    (set! (. area x) (- newx (/ (character :width) 2)))
-    (set! (. area y) (- newy (/ (character :height) 2)))
+    (.setX area (- newx (/ (character :width) 2)))
+    (.setY area (- newy (/ (character :height) 2)))
     (if (some (fn [obstacle] (.overlaps obstacle area)) obstacles)
       ; there is an obstacle that overlaps with the new area. Don't move!
       (assoc character :movement
